@@ -33,7 +33,8 @@ if audio and "text" in audio:
     transcribed_text = audio["text"]
     st.success("✅ Transcribed: " + transcribed_text)
     st.session_state['answer'] = transcribed_text
-
+else:
+        st.warning("⚠️ No speech detected. Please try again.")
 
 # ✍️ User input (linked with voice)
 answer = st.text_area("📝 Type your answer or paste here:", value=st.session_state.get("answer", ""), key="answer_box")
