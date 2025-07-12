@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from app.question_generator import get_question
 from app.answer_analyzer import analyze_answer
 from app.feedback_generator import generate_feedback
@@ -23,21 +24,43 @@ st.markdown(f"**{st.session_state.question}**")
 if st.button("🔁 Next Question"):
     st.session_state.question = get_question()
 
-# 🎤 Voice Input Section
+
+# 🎤 JavaScript-based mic input
 st.subheader("🎤 Or Speak Your Answer")
-audio = mic_recorder(start_prompt="🎙 Start recording", stop_prompt="🛑 Stop recording", just_once=True, key="voice")
 
-# ✅ Use mic_recorder's built-in text field
-if audio and "text" in audio:
-    transcribed_text = audio["text"]
-    st.success("✅ Transcribed: " + transcribed_text)
-    st.session_state['answer'] = transcribed_text
-else:
-        st.warning("⚠️ No speech detected. Please try again.")
+components.html("""
+  <button onclick="startDictation()" style="padding:10px 20px; font-size:16px;">🎙 Speak Your Answer</button>
+  <br><br>
+  <textarea id="transcript" rows="5" style="width:100%; font-size:16px;" placeholder="Your answer will appear here..."></textarea>
 
+  <script>
+    function startDictation() {
+      if (window.hasOwnProperty('webkitSpeechRecognition')) {
+        var recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = "en-US";
+        recognition.start();
+
+        recognition.onresult = function(e) {
+          document.getElementById('transcript').value = e.results[0][0].transcript;
+          const inputEvent = new Event('input', { bubbles: true });
+          document.getElementById('transcript').dispatchEvent(inputEvent);
+          recognition.stop();
+        };
+
+        recognition.onerror = function(e) {
+          alert("Speech recognition error: " + e.error);
+          recognition.stop();
+        };
+      } else {
+        alert("Speech recognition not supported in this browser.");
+      }
+    }
+  </script>
+""", height=300)
 # ✍️ User input (linked with voice)
-answer = st.text_area("📝 Type your answer or paste here:", value=st.session_state.get("answer", ""), key="answer_box")
-
+answer = st.text_area("📝 Answer (auto-filled or typed):", key="answer")
 
 # ✅ Evaluate
 if st.button("🧪 Evaluate Answer"):
