@@ -1,6 +1,5 @@
 streamlit
 transformers
 torch
-speechrecognition
 streamlit_mic_recorder
 
