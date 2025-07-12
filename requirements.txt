@@ -1,5 +1,5 @@
 streamlit
 transformers
 torch
-streamlit_mic_recorder==0.0.10
+streamlit_mic_recorder
 
