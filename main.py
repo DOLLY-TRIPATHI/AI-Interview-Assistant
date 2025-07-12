@@ -6,7 +6,7 @@ from app.feedback_generator import generate_feedback
 
 # 🎤 Voice input dependencies
 from streamlit_mic_recorder import mic_recorder
-
+from streamlit.components.v1 import html
 
 st.set_page_config(page_title="AI Interview Assistant", layout="centered")
 
@@ -26,50 +26,40 @@ if st.button("🔁 Next Question"):
 
 
 # 🎤 Voice Input Section
+
 st.subheader("🎤 Or Speak Your Answer")
 
-components.html("""
-  <button onclick="startDictation()" style="padding:10px 20px; font-size:16px;">🎙 Speak Your Answer</button>
-  <br><br>
-  <textarea id="transcript" rows="4" style="width:100%; font-size:16px;" placeholder="Your answer will appear here..."></textarea>
-  <br><br>
-  <button onclick="copyToStreamlit()" style="padding:10px 20px; font-size:16px;">✅ Use This as Answer</button>
-
-  <script>
-    function startDictation() {
-      if (window.hasOwnProperty('webkitSpeechRecognition')) {
-        var recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = "en-US";
-        recognition.start();
-
-        recognition.onresult = function(e) {
-          document.getElementById('transcript').value = e.results[0][0].transcript;
-          recognition.stop();
-        };
-
-        recognition.onerror = function(e) {
-          alert("Speech recognition error: " + e.error);
-          recognition.stop();
-        };
-      } else {
-        alert("Speech recognition not supported in this browser.");
-      }
+html("""
+<script>
+  function startRecognition() {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Your browser doesn't support speech recognition.");
+      return;
     }
+    var recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    recognition.start();
 
-    function copyToStreamlit() {
-      const txt = document.getElementById('transcript').value;
-      const streamlitTextArea = window.parent.document.querySelector('textarea[data-testid="stTextAreaInput"]');
-      if (streamlitTextArea) {
-        streamlitTextArea.value = txt;
-        streamlitTextArea.dispatchEvent(new Event("input", { bubbles: true }));
-      } else {
-        alert("Unable to find Streamlit text box.");
-      }
-    }
-  </script>
-""", height=350)
+    recognition.onresult = function(event) {
+      var result = event.results[0][0].transcript;
+      const streamlitInput = window.parent.document.querySelector('iframe')
+                            .contentWindow.document.querySelectorAll('textarea')[0];
+      streamlitInput.value = result;
+      streamlitInput.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+
+    recognition.onerror = function(event) {
+      alert("Error occurred: " + event.error);
+    };
+  }
+</script>
+
+<button onclick="startRecognition()" style="padding:10px 20px; font-size:16px;">
+  🎙 Click to Speak
+</button>
+""", height=100)
 
 # ✍️ Actual input text area
 answer = st.text_area("📝 Answer (auto-filled or typed):", key="answer")
