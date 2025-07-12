@@ -3,4 +3,4 @@ transformers
 torch
 speechrecognition
 streamlit_mic_recorder
-pyaudio
+
