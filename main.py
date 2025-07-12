@@ -3,21 +3,21 @@ from app.question_generator import get_question
 from app.answer_analyzer import analyze_answer
 from app.feedback_generator import generate_feedback
 
-# ✅ Safe rerun logic for all Streamlit versions
+# ✅ Safe rerun logic (doesn't crash on Streamlit Cloud)
 try:
     if "rerun_flag" in st.session_state:
         del st.session_state.rerun_flag
         st.rerun()
 except:
-    pass  # Avoid crash on Streamlit Cloud
+    pass
 
-# 🧾 Page Config
+# 🎯 Page config
 st.set_page_config(page_title="AI Interview Assistant", layout="centered")
 
 st.title("🎙️ AI Interview Assistant")
 st.markdown("Prepare for interviews with real-time AI feedback!")
 
-# ✅ Load question into session state
+# ✅ Load or keep question
 if "question" not in st.session_state:
     st.session_state.question = get_question()
 
@@ -27,28 +27,22 @@ st.markdown(f"**{st.session_state.question}**")
 # 🔁 Next Question button
 if st.button("🔁 Next Question"):
     st.session_state.question = get_question()
-    st.session_state.answer = ""  # clear previous answer
     st.session_state.rerun_flag = True
 
-# ✍️ Answer input
-answer = st.text_area("📝 Type your answer or paste here:", key="answer")
+# ✍️ Input box for answer (no session key conflict)
+answer = st.text_area("📝 Type your answer or paste here:")
 
-# ✅ Evaluate Button
+# ✅ Evaluate answer
 if st.button("✅ Evaluate Answer"):
     if answer.strip() == "":
         st.warning("Please enter an answer to evaluate.")
     else:
-        # Analyze answer
         score, keywords_covered, tone = analyze_answer(answer, st.session_state.question)
-
-        # Generate feedback
         feedback = generate_feedback(score, keywords_covered, tone)
 
-        # Show feedback
         st.markdown("### ✅ Feedback")
         st.success(feedback)
 
-        # Show score bar
         st.progress(score / 100)
 
 # Footer
