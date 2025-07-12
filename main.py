@@ -26,24 +26,18 @@ if st.button("🔁 Next Question"):
 
 # 🎤 Voice Input Section
 st.subheader("🎤 Or Speak Your Answer")
-audio = mic_recorder(start_prompt="Start recording", stop_prompt="Stop recording", just_once=True, key="voice")
+audio = mic_recorder(start_prompt="🎙 Start recording", stop_prompt="🛑 Stop recording", just_once=True, key="voice")
 
-if audio:
-    recognizer = sr.Recognizer()
-    audio_data = sr.AudioFile(io.BytesIO(audio["bytes"]))
-    with audio_data as source:
-        recorded = recognizer.record(source)
-        try:
-            transcribed_text = recognizer.recognize_google(recorded)
-            st.success("✅ Transcribed: " + transcribed_text)
-            st.session_state['answer'] = transcribed_text
-        except sr.UnknownValueError:
-            st.error("⚠️ Sorry, could not understand the audio.")
-        except sr.RequestError:
-            st.error("⚠️ Speech service is down. Try again later.")
+# ✅ Use mic_recorder's built-in text field
+if audio and "text" in audio:
+    transcribed_text = audio["text"]
+    st.success("✅ Transcribed: " + transcribed_text)
+    st.session_state['answer'] = transcribed_text
+
 
 # ✍️ User input (linked with voice)
 answer = st.text_area("📝 Type your answer or paste here:", value=st.session_state.get("answer", ""), key="answer_box")
+
 
 # ✅ Evaluate
 if st.button("🧪 Evaluate Answer"):
