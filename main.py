@@ -25,13 +25,15 @@ if st.button("🔁 Next Question"):
     st.session_state.question = get_question()
 
 
-# 🎤 JavaScript-based mic input
+# 🎤 Voice Input Section
 st.subheader("🎤 Or Speak Your Answer")
 
 components.html("""
   <button onclick="startDictation()" style="padding:10px 20px; font-size:16px;">🎙 Speak Your Answer</button>
   <br><br>
-  <textarea id="transcript" rows="5" style="width:100%; font-size:16px;" placeholder="Your answer will appear here..."></textarea>
+  <textarea id="transcript" rows="4" style="width:100%; font-size:16px;" placeholder="Your answer will appear here..."></textarea>
+  <br><br>
+  <button onclick="copyToStreamlit()" style="padding:10px 20px; font-size:16px;">✅ Use This as Answer</button>
 
   <script>
     function startDictation() {
@@ -44,8 +46,6 @@ components.html("""
 
         recognition.onresult = function(e) {
           document.getElementById('transcript').value = e.results[0][0].transcript;
-          const inputEvent = new Event('input', { bubbles: true });
-          document.getElementById('transcript').dispatchEvent(inputEvent);
           recognition.stop();
         };
 
@@ -57,10 +57,23 @@ components.html("""
         alert("Speech recognition not supported in this browser.");
       }
     }
+
+    function copyToStreamlit() {
+      const txt = document.getElementById('transcript').value;
+      const streamlitTextArea = window.parent.document.querySelector('textarea[data-testid="stTextAreaInput"]');
+      if (streamlitTextArea) {
+        streamlitTextArea.value = txt;
+        streamlitTextArea.dispatchEvent(new Event("input", { bubbles: true }));
+      } else {
+        alert("Unable to find Streamlit text box.");
+      }
+    }
   </script>
-""", height=300)
-# ✍️ User input (linked with voice)
+""", height=350)
+
+# ✍️ Actual input text area
 answer = st.text_area("📝 Answer (auto-filled or typed):", key="answer")
+
 
 # ✅ Evaluate
 if st.button("🧪 Evaluate Answer"):
