@@ -20,7 +20,8 @@ st.markdown(f"**{st.session_state.question}**")
 if st.button("🔁 Next Question"):
     st.session_state.question = get_question()
     st.session_state.answer = ""  # clear old answer
-    st.rerun()
+    st.session_state.rerun_flag = True
+
 
 # ✍️ Step 3: User input
 answer = st.text_area("📝 Type your answer or paste here:", key="answer")
