@@ -1,11 +1,20 @@
-def generate_feedback(analysis):
-    sentiment = analysis['sentiment']
-    score = int(analysis['relevance_score'] * 100)
+def generate_feedback(score, keywords_covered=None, tone=None):
+    feedback = ""
 
-    if sentiment['label'] == "POSITIVE":
-        tone = "confident"
+    if score >= 80:
+        feedback += "Great job! Your answer is very relevant. "
+    elif score >= 50:
+        feedback += "Decent attempt. Try to add more relevant points. "
     else:
-        tone = "improvable"
+        feedback += "Your answer lacks depth. Consider studying the topic more. "
 
-    summary = f"Your tone seems **{tone}**, and your answer covers about **{score}%** of the key terms."
-    return {"summary": summary, "score": score}
+    if tone:
+        if "confident" in tone.lower():
+            feedback += "You sound confident. "
+        elif "improvable" in tone.lower():
+            feedback += "Your tone seems improvable. "
+
+    if keywords_covered is not None:
+        feedback += f"You covered about {keywords_covered}% of key terms."
+
+    return feedback
