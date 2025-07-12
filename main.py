@@ -5,8 +5,7 @@ from app.feedback_generator import generate_feedback
 
 # 🎤 Voice input dependencies
 from streamlit_mic_recorder import mic_recorder
-import speech_recognition as sr
-import io
+
 
 st.set_page_config(page_title="AI Interview Assistant", layout="centered")
 
